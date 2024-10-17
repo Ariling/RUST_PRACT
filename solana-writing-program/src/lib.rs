@@ -71,3 +71,87 @@ pub fn process_instruction(
     // Call the instruction handler
     instruction_handler(accounts)
 }
+
+// 단위테스트 코드
+#[cfg(test)]
+mod test {
+    use super::*;
+    use solana_program::clock::Epoch;
+    use solana_program::account_info::AccountInfo;
+
+    #[test]
+    fn test_transfer_service_fee_lamports() {
+        let key1 = Pubkey::new_unique();
+        let key2 = Pubkey::new_unique();
+        let mut lamports1 = 50;
+        let mut lamports2 = 100;
+        let mut data1 = vec![0; 20];
+        let mut data2 = vec![0; 20];
+
+        let account1 = AccountInfo::new(
+            &key1,
+            false,
+            true,
+            &mut lamports1,
+            &mut data1,
+            &key1,
+            false,
+            Epoch::default(),
+        );
+
+        let account2 = AccountInfo::new(
+            &key2,
+            false,
+            true,
+            &mut lamports2,
+            &mut data2,
+            &key2,
+            false,
+            Epoch::default(),
+        );
+
+        let amount = 25;
+
+        let result = transfer_service_fee_lamports(&account1, &account2, amount);
+        assert!(result.is_ok());
+        assert_eq!(**account1.try_borrow_lamports().unwrap(), 25);
+        assert_eq!(**account2.try_borrow_lamports().unwrap(), 125);
+    }
+
+    #[test]
+    fn test_insufficient_funds() {
+        let key1 = Pubkey::new_unique();
+        let key2 = Pubkey::new_unique();
+        let mut lamports1 = 10;
+        let mut lamports2 = 100;
+        let mut data1 = vec![0; 20];
+        let mut data2 = vec![0; 20];
+
+        let account1 = AccountInfo::new(
+            &key1,
+            false,
+            true,
+            &mut lamports1,
+            &mut data1,
+            &key1,
+            false,
+            Epoch::default(),
+        );
+
+        let account2 = AccountInfo::new(
+            &key2,
+            false,
+            true,
+            &mut lamports2,
+            &mut data2,
+            &key2,
+            false,
+            Epoch::default(),
+        );
+
+        let amount = 25;
+
+        let result = transfer_service_fee_lamports(&account1, &account2, amount);
+        assert!(result.is_err());
+    }
+}

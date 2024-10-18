@@ -1017,6 +1017,7 @@ dependencies = [
 name = "solana-program-test"
 version = "0.1.0"
 dependencies = [
+ "borsh",
  "solana-program",
 ]
 

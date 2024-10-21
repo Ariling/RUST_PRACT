@@ -1,3 +1,6 @@
+pub mod instruction;
+pub mod state;
+pub mod realloc;
 use solana_program::{
     account_info::{next_account_info, AccountInfo},
     entrypoint,
